@@ -1,0 +1,34 @@
+name: oss-platform
+on:
+  push:
+    branches:
+    - ci/**
+jobs:
+  crowsnest:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v5
+      with:
+        python-version: '3.12'
+        enable-cache: true
+    - run: 'uv run --with pytest --with pyyaml --with "duckdb>=1.5,<2" --with fastapi
+        --with httpx --with pytz --with uvicorn --with "mcp>=2.3,<3" --with "pandas>=2.0,<3"
+        python -m pytest tests/test_crowsnest_security.py tests/test_crowsnest_mcp.py
+        tests/test_crowsnest_auth.py tests/test_crowsnest_vm_mode.py tests/test_crowsnest_config.py
+        tests/test_crowsnest_notebooks.py tests/test_crowsnest_apps.py tests/test_extensions.py
+        tests/test_storage.py tests/test_maintenance.py tests/test_remote.py tests/test_install_scripts.py
+        tests/test_crowsnest_materialize.py tests/test_crowsnest_status.py tests/test_crowsnest_shutdown.py
+        tests/test_crowsnest_startup.py -v
+
+        '
